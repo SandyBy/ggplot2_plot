@@ -1,0 +1,52 @@
+#dual plot
+#2020-04-26
+rm(list = ls())
+setwd("C:/Users/Administrator/Desktop/WLY/number")
+mydata <- read.csv("death_global_2017_every 5 years_bothsex1.csv")
+mydata$age = factor(mydata$age,levels=c("<20", "20-24", "25-29","30-34", 
+                                        "35-39", "40-44", "45-49", "50-54", 
+                                        "55-59", "60-64", "65-69", "70-74",  
+                                        "75-79", "80-84","85-89", "90-94", "95+"))
+
+coeff <- 100
+p1 <- ggplot(mydata, aes(x = age, y = val_n, fill = sex)) +
+  geom_bar(position = "dodge", stat = "identity",width = 0.5) +
+  geom_errorbar(aes(ymin=lower_n, ymax=upper_n),
+                width=.25, 
+                position=position_dodge(.5)) +
+  geom_line(aes(x = age, y = val_r*coeff, color = sex,group=sex),size=.8)+
+  theme(axis.text.x=element_text(vjust=0.8,angle=45,size=8))+
+  scale_fill_lancet(name="",labels = c("Male(Death number)", "Female(Death number)"))+
+  scale_color_lancet(name="",labels = c("Male(Death rate)", "Female(Death rate)"))+
+  scale_y_continuous(name=expression("Death number"),
+                     breaks=pretty_breaks(10),  #创建主坐标轴的刻度区间（这里是9个区间10个刻度点）         
+                     sec.axis = sec_axis(~./coeff,breaks=pretty_breaks(11),name = "Death rate"))+ #对次坐标轴刻度标签的二次映射（已经使用coeff进行坐标轴转化）  
+  theme(legend.position = c(0.18,0.8))+
+  theme(panel.grid.major =element_blank(),panel.grid.minor = element_blank(),panel.background = element_blank(),axis.line = element_line(colour = "black"))
+#p1
+#DALY number rate
+#rm(list = ls())
+setwd("C:/Users/Administrator/Desktop/WLY/number")
+mydata1 <- read.csv("DALYs_global_2017_every 5 years_bothsex1.csv")
+mydata1$age = factor(mydata1$age,levels=c("<20", "20-24", "25-29","30-34", 
+                                        "35-39", "40-44", "45-49", "50-54", 
+                                        "55-59", "60-64", "65-69", "70-74",  
+                                        "75-79", "80-84","85-89", "90-94", "95+"))
+
+coeff1 <- 500
+p2 <- ggplot(mydata1, aes(x = age, y = val_n, fill = sex)) +
+  geom_bar(position = "dodge", stat = "identity",width = 0.5) +
+  geom_errorbar(aes(ymin=lower_n, ymax=upper_n),
+                width=.25, 
+                position=position_dodge(.5)) +
+  geom_line(aes(x = age, y = val_r*coeff1, color = sex,group=sex),size=.8)+
+  theme(axis.text.x=element_text(vjust=0.8,angle=45,size=8))+
+  scale_fill_lancet(name="",labels = c("Male(DALY number)", "Female(DALY number)"))+
+  scale_color_lancet(name="",labels = c("Male(DALY rate)", "Female(DALY rate)"))+
+  theme(legend.position = c(0.18,0.8))+
+  scale_y_continuous(name=expression("DALY number"),
+                     breaks=pretty_breaks(11),  #创建主坐标轴的刻度区间（这里是9个区间10个刻度点）         
+                     sec.axis = sec_axis(~./coeff1,breaks=pretty_breaks(9),name = "DALY rate"))+ #对次坐标轴刻度标签的二次映射（已经使用coeff进行坐标轴转化）  
+  theme(panel.grid.major =element_blank(),panel.grid.minor = element_blank(),panel.background = element_blank(),axis.line = element_line(colour = "black"))
+
+plot_grid(p1,p2,labels = c("A", "B"),nrow = 2)
